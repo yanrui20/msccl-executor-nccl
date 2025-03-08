@@ -92,12 +92,12 @@ ncclResult_t ncclAllGather(const void* sendbuff, void* recvbuff, size_t sendcoun
   // printf("========MSGSIZE=: %ld :===============\n", msgsize);
   // printf("========MSGSIZE=: %d :===============\n", comm->nRanks);
 
-  if (msgsize * comm->nRanks <= 33554432) {
-  if (mscclAvailable() && !mscclIsCaller()) {
-    return mscclEnqueueCheck(
-      sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
-      sendcount, datatype, 0, 0, ncclSum, mscclFuncAllGather, comm, stream);
-  }
+  if (msgsize * comm->nRanks <= 16777216) {
+    if (mscclAvailable() && !mscclIsCaller()) {
+      return mscclEnqueueCheck(
+        sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
+        sendcount, datatype, 0, 0, ncclSum, mscclFuncAllGather, comm, stream);
+    }
   }
 
   struct ncclInfo info = { ncclFuncAllGather, "AllGather",
@@ -123,11 +123,12 @@ ncclResult_t ncclAllReduce(const void* sendbuff, void* recvbuff, size_t count,
   };
   NvtxParamsAllReduce payload{count * ncclTypeSize(datatype), op};
   NVTX3_FUNC_WITH_PARAMS(AllReduce, AllReduceSchema, payload)
-
-  if (mscclAvailable() && !mscclIsCaller()) {
-    return mscclEnqueueCheck(
-      sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
-      count, datatype, 0, 0, op, mscclFuncAllReduce, comm, stream);
+  if (count * ncclTypeSize(datatype) * comm->nRanks <= 16777216){
+    if (mscclAvailable() && !mscclIsCaller()) {
+      return mscclEnqueueCheck(
+        sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
+        count, datatype, 0, 0, op, mscclFuncAllReduce, comm, stream);
+    }
   }
 
   struct ncclInfo info = { ncclFuncAllReduce, "AllReduce",
@@ -219,11 +220,12 @@ ncclResult_t ncclReduceScatter(const void* sendbuff, void* recvbuff, size_t recv
   NvtxParamsReduceScatter payload{recvcount * ncclTypeSize(datatype), op};
   // printf("========MSGSIZE=: %ld :===============\n", recvcount * ncclTypeSize(datatype));
   NVTX3_FUNC_WITH_PARAMS(ReduceScatter, ReduceScatterSchema, payload)
-
-  if (mscclAvailable() && !mscclIsCaller()) {
-    return mscclEnqueueCheck(
-      sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
-      recvcount, datatype, 0, 0, op, mscclFuncReduceScatter, comm, stream);
+  if (recvcount * ncclTypeSize(datatype) * comm->nRanks <= 16777216){
+    if (mscclAvailable() && !mscclIsCaller()) {
+      return mscclEnqueueCheck(
+        sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
+        recvcount, datatype, 0, 0, op, mscclFuncReduceScatter, comm, stream);
+    }
   }
 
   struct ncclInfo info = { ncclFuncReduceScatter, "ReduceScatter",
