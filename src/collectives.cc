@@ -89,7 +89,10 @@ ncclResult_t ncclAllGather(const void* sendbuff, void* recvbuff, size_t sendcoun
   size_t msgsize = sendcount * ncclTypeSize(datatype);
   NVTX3_FUNC_WITH_PARAMS(AllGather, AllGatherSchema, msgsize)
 
-  if (msgsize <= 33554432) {
+  // printf("========MSGSIZE=: %ld :===============\n", msgsize);
+  // printf("========MSGSIZE=: %d :===============\n", comm->nRanks);
+
+  if (msgsize * comm->nRanks <= 33554432) {
   if (mscclAvailable() && !mscclIsCaller()) {
     return mscclEnqueueCheck(
       sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
@@ -214,6 +217,7 @@ ncclResult_t ncclReduceScatter(const void* sendbuff, void* recvbuff, size_t recv
       offsetof(NvtxParamsReduceScatter, op)}
   };
   NvtxParamsReduceScatter payload{recvcount * ncclTypeSize(datatype), op};
+  // printf("========MSGSIZE=: %ld :===============\n", recvcount * ncclTypeSize(datatype));
   NVTX3_FUNC_WITH_PARAMS(ReduceScatter, ReduceScatterSchema, payload)
 
   if (mscclAvailable() && !mscclIsCaller()) {
