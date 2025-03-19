@@ -535,6 +535,7 @@ ncclResult_t ncclGroupEndInternal(ncclSimInfo_t* simInfo) {
   }
 
   if (ncclGroupCommHead != nullptr || !ncclIntruQueueEmpty(&ncclAsyncJobs) || ncclGroupCommPreconnectHead != nullptr) {
+    INFO(NCCL_ALL, "----print at group.cc: 538---- ncclGroupCommHead %p !ncclIntruQueueEmpty(&ncclAsyncJobs) %d ncclGroupCommPreconnectHead %p", ncclGroupCommHead, !ncclIntruQueueEmpty(&ncclAsyncJobs), ncclGroupCommPreconnectHead);
     ncclGroupJobMain.groupCommHeadPtr = &ncclGroupCommHead;
     ncclGroupJobMain.groupCommPreconnectHeadPtr = &ncclGroupCommPreconnectHead;
     ncclGroupJobMain.groupErrorPtr = &ncclGroupError;
