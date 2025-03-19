@@ -535,7 +535,6 @@ ncclResult_t ncclGroupEndInternal(ncclSimInfo_t* simInfo) {
   }
 
   if (ncclGroupCommHead != nullptr || !ncclIntruQueueEmpty(&ncclAsyncJobs) || ncclGroupCommPreconnectHead != nullptr) {
-    INFO(NCCL_ALL, "----print at group.cc: 538---- ncclGroupCommHead %p !ncclIntruQueueEmpty(&ncclAsyncJobs) %d ncclGroupCommPreconnectHead %p", ncclGroupCommHead, !ncclIntruQueueEmpty(&ncclAsyncJobs), ncclGroupCommPreconnectHead);
     ncclGroupJobMain.groupCommHeadPtr = &ncclGroupCommHead;
     ncclGroupJobMain.groupCommPreconnectHeadPtr = &ncclGroupCommPreconnectHead;
     ncclGroupJobMain.groupErrorPtr = &ncclGroupError;
@@ -572,7 +571,6 @@ ncclResult_t ncclGroupEndInternal(ncclSimInfo_t* simInfo) {
       ret = ncclInProgress;
     } else {
       /* blocking group */
-      INFO(NCCL_ALL, "----print at group.cc: 573----");
       NCCLCHECKGOTO(groupLaunch(&ncclGroupJobMainPtr->base, internalSimInfoPtr), ret, fail);
       if (simInfo) memcpy((void*)simInfo, (void*)internalSimInfoPtr, realSize);
       groupResetJobState(ncclGroupJobMainPtr);

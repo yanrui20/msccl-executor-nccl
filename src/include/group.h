@@ -121,6 +121,7 @@ inline void ncclGroupCommJoin(struct ncclComm* comm) {
       pp = &(*pp)->groupNext;
     comm->groupNext = *pp;
     *pp = comm;
+    INFO(NCCL_ALL, "----print group.cc: 124 . ncclGroupCommHead: %p\n", ncclGroupCommHead);
     // Comms gets a new memory stack scope upon joining. Each task batched for
     // this comm is allocated there.
     ncclMemoryStackPush(&comm->memScoped);
