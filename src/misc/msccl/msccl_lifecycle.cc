@@ -333,6 +333,7 @@ static ncclResult_t mscclInternalSchedulerSelectAlgo(struct mscclSchedulerParam*
     bool msgSizeIsValid =
       param->count > 0 && ((param->count * m.sizeMultiplier) % m.nChunksPerLoop) == 0 &&
       nBytes >= m.minBytes && (m.maxBytes == 0 || nBytes <= m.maxBytes);
+    INFO(NCCL_ALL, "----print i: %lu, msgSizeIsValid: %d, m.nRanks: %d, param->nRanks: %d, m.func: %p, param->func: %p, isInPlace: %d, m.inPlace: %d, m.outOfPlace: %d", i, msgSizeIsValid, m.nRanks, param->nRanks, m.func, param->func, isInPlace, m.inPlace, m.outOfPlace);
     if (msgSizeIsValid &&
         m.nRanks == param->nRanks &&
         m.func == param->func &&
@@ -350,10 +351,8 @@ static ncclResult_t mscclInternalSchedulerSelectAlgo(struct mscclSchedulerParam*
 static ncclResult_t mscclSchedulerSelectAlgo(struct mscclSavedSchedulerParam* param) {
   mscclStatus& status = mscclGetStatus();
   if (status.mscclSchedulerPtr) {
-    INFO(NCCL_ALL, "----print mscclSchedulerPtr: %p", status.mscclSchedulerPtr);
     NCCLCHECK(status.mscclSchedulerPtr->selectAlgo(&(param->p)));
   } else {
-    INFO(NCCL_ALL, "----print mscclSchedulerPtr: %p", status.mscclSchedulerPtr);
     NCCLCHECK(mscclInternalSchedulerSelectAlgo(&(param->p)));
   }
   return ncclSuccess;
