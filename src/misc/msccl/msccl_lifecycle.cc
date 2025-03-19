@@ -350,8 +350,10 @@ static ncclResult_t mscclInternalSchedulerSelectAlgo(struct mscclSchedulerParam*
 static ncclResult_t mscclSchedulerSelectAlgo(struct mscclSavedSchedulerParam* param) {
   mscclStatus& status = mscclGetStatus();
   if (status.mscclSchedulerPtr) {
+    INFO(NCCL_ALL, "----print mscclSchedulerPtr: %p", status.mscclSchedulerPtr);
     NCCLCHECK(status.mscclSchedulerPtr->selectAlgo(&(param->p)));
   } else {
+    INFO(NCCL_ALL, "----print mscclSchedulerPtr: %p", status.mscclSchedulerPtr);
     NCCLCHECK(mscclInternalSchedulerSelectAlgo(&(param->p)));
   }
   return ncclSuccess;
