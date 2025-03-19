@@ -470,7 +470,9 @@ ncclResult_t mscclEnqueueCheck(
     &threadLocalStatus.savedSchedulerParams.back()));
 
   switch (threadLocalStatus.groupStatus) {
+    INFO(NCCL_ALL, "----print groupStatus.");
     case mscclNoGroup:
+      INFO(NCCL_ALL, "----print mscclNoGroup. comm->mscclCompatible: %d", comm->mscclCompatible);
       if (comm->mscclCompatible) {
             NCCLCHECK(mscclSchedulerSelectAlgo(&threadLocalStatus.savedSchedulerParams.back()));
             if (threadLocalStatus.savedSchedulerParams.back().p.scheduled) {
@@ -481,6 +483,7 @@ ncclResult_t mscclEnqueueCheck(
       NCCLCHECK(mscclFallBackSavedParams());
       break;
     case mscclGroupSupportedOp:
+      INFO(NCCL_ALL, "----print mscclGroupSupportedOp. comm->mscclCompatible: %d", comm->mscclCompatible);
       if (comm->mscclCompatible) {
           NCCLCHECK(mscclSchedulerSelectAlgo(&threadLocalStatus.savedSchedulerParams.back()));
           if (threadLocalStatus.savedSchedulerParams.back().p.scheduled) {
@@ -492,6 +495,7 @@ ncclResult_t mscclEnqueueCheck(
       threadLocalStatus.groupStatus = mscclGroupUnsupportedOp;
       NCCLCHECK(mscclFallBackSavedParams());
     case mscclGroupUnsupportedOp:
+      INFO(NCCL_ALL, "----print mscclGroupUnsupportedOp. ");
       NCCLCHECK(mscclFallBackSavedParams());
       break;
     default:
