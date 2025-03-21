@@ -429,7 +429,6 @@ static ncclResult_t groupLaunch(struct ncclAsyncJob *job_, ncclSimInfo_t* simInf
   NCCLCHECKGOTO(asyncJobLaunch(asyncJobsMain, groupAbortFlag), ret, fail);
 
   /* Connect channels at runtime if cumem is supported */
-  INFO(NCCL_ALL, "----print group.cc: 432 . groupLaunch: groupCommHeadMain %p\n", groupCommHeadMain);
   if (groupCommHeadMain != nullptr) {
     struct ncclComm* comm = groupCommHeadMain;
     struct ncclIntruQueue<struct ncclAsyncJob, &ncclAsyncJob::next> asyncCollJobs;

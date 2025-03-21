@@ -333,7 +333,6 @@ static ncclResult_t mscclInternalSchedulerSelectAlgo(struct mscclSchedulerParam*
     bool msgSizeIsValid =
       param->count > 0 && ((param->count * m.sizeMultiplier) % m.nChunksPerLoop) == 0 &&
       nBytes >= m.minBytes && (m.maxBytes == 0 || nBytes <= m.maxBytes);
-    INFO(NCCL_ALL, "-----print param->count: %llu, m.sizeMultiplier: %d, m.nChunksPerLoop: %d\n", param->count, m.sizeMultiplier, m.nChunksPerLoop);
     if (msgSizeIsValid &&
         m.nRanks == param->nRanks &&
         m.func == param->func &&
@@ -473,9 +472,7 @@ ncclResult_t mscclEnqueueCheck(
   switch (threadLocalStatus.groupStatus) {
     case mscclNoGroup:
       if (comm->mscclCompatible) {
-            INFO(NCCL_ALL, "----print before mscclSchedulerSelectAlgo.scheduled: %d", threadLocalStatus.savedSchedulerParams.back().p.scheduled);
             NCCLCHECK(mscclSchedulerSelectAlgo(&threadLocalStatus.savedSchedulerParams.back()));
-            INFO(NCCL_ALL, "----print after mscclSchedulerSelectAlgo. scheduled: %d", threadLocalStatus.savedSchedulerParams.back().p.scheduled);
             if (threadLocalStatus.savedSchedulerParams.back().p.scheduled) {
               NCCLCHECK(mscclRunSavedParams());
               break;
