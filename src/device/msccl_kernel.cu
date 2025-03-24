@@ -230,28 +230,28 @@ __device__ __forceinline__ void mscclRunInterpreter(
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
       uint8_t break_iter = 0;
-      print("where to break: %d\n", break_iter++);
+      printf("where to break: %d\n", break_iter++);
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
-      print("where to break: %d\n", break_iter++);
+      printf("where to break: %d\n", break_iter++);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
-      print("where to break: %d\n", break_iter++);
+      printf("where to break: %d\n", break_iter++);
       if (numDependencies > 0){
         if (tid < numDependencies) {
-          print("where to break: %d\n", break_iter++);
+          printf("where to break: %d\n", break_iter++);
           int16_t dependentPointer = t->dependencePointer;
-          print("where to break: %d\n", break_iter++);
+          printf("where to break: %d\n", break_iter++);
           int8_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
-          print("where to break: %d\n", break_iter++);
+          printf("where to break: %d\n", break_iter++);
           int16_t dependentStep = mscclShmem.mscclTB.dependentStep[dependentPointer+tid];
-          print("where to break: %d\n", break_iter++);
+          printf("where to break: %d\n", break_iter++);
           uint64_t goalFlag = COMPUTE_FLAG(workIndex, iter, dependentStep);
-          print("where to break: %d\n", break_iter++);
+          printf("where to break: %d\n", break_iter++);
           while (true){
             uint64_t curFlag = (mscclFlags + dependentBid)->flag;
-            print("where to break: %d\n", break_iter++);
+            printf("where to break: %d\n", break_iter++);
             if (curFlag >= goalFlag && GET_WORKINDEX_FROM_FLAG(curFlag) == workIndex) break;
-            print("where to break: %d\n", break_iter++);
+            printf("where to break: %d\n", break_iter++);
           }
         }
         step += numDependencies-1;
