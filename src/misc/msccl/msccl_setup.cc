@@ -530,7 +530,7 @@ ncclResult_t mscclSetupKernel(const void* sendBuff, void* recvBuff, size_t count
   work.redOpArgIsPtr = opFull.scalarArgIsPtr;
   work.needsFence = status.needsFence;
   INFO(NCCL_INIT, "MSCCL: Setup Kernel finished, smem %ld needsFence %d", smem, status.needsFence);
-  INFO(NCCL_INIT, "PCCL: Launching kernel with grid %d, block %d, smem %ld\n", grid.x, block.x, smem);
+  INFO(NCCL_INIT, "PCCL: Launching kernel with grid %d, block %d, smem %ld, dataType %d\n", grid.x, block.x, smem, dataType);
   void *args[3] = {&comm->devComm, &devAlgo, &work};
   // void *func = mscclKernelEntries[(opFull.op * ncclNumTypes + dataType) * NCCL_NUM_PROTOCOLS + hostAlgo->protocol];
   void *func = pcclKernelEntries[dataType];
