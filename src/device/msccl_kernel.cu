@@ -10,7 +10,7 @@
 
 #include "msccl/msccl_struct.h"
 #include "msccl/msccl_kernel.h"
-#include <stdio.h>
+// #include <stdio.h>
 
 #if defined(ENABLE_NPKIT)
 #include "npkit/npkit.h"
@@ -88,7 +88,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
   const int tid = threadIdx.x;
   const int bid = blockIdx.x;
   const int nthreads = blockDim.x;
-  printf("cuda debug helloworld");
+  printf("cuda debug helloworld\n");
 
   // initialize mscclShmem.mscclTB
   threadBlockCopy(
