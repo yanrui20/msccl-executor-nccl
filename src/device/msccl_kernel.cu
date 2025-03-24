@@ -11,6 +11,8 @@
 #include "msccl/msccl_struct.h"
 #include "msccl/msccl_kernel.h"
 
+#include "debug.h"
+
 #if defined(ENABLE_NPKIT)
 #include "npkit/npkit.h"
 #endif
