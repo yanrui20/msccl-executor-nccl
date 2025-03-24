@@ -11,8 +11,6 @@
 #include "msccl/msccl_struct.h"
 #include "msccl/msccl_kernel.h"
 
-#include "debug.h"
-
 #if defined(ENABLE_NPKIT)
 #include "npkit/npkit.h"
 #endif
@@ -88,7 +86,6 @@ __device__ __forceinline__ void pcclRunInterpreter(struct ncclDevComm* comm, str
   const int tid = threadIdx.x;
   const int bid = blockIdx.x;
   const int nthreads = blockDim.x;
-  INFO(NCCL_INIT, "PCCL: pcclRunInterpreter: tid %d, bid %d, nthreads %d \n", tid, bid, nthreads);
 
   // initialize mscclShmem.mscclTB
   threadBlockCopy(
