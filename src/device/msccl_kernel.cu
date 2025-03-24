@@ -19,8 +19,8 @@ __shared__ struct mscclShmemData mscclShmem;
 
 __shared__ struct mscclShmemData depShmem;
 
-#define print_break_iter(break_iter) \
-  if (tid == 0 && bid == 0) printf("where to break: break_iter %d\n", break_iter++);
+#define print_break_iter(bid, break_iter) \
+  if (tid == 0) printf("where to break: bid %d, break_iter %d\n", bid, break_iter++);
 
 #define MSCCL_MAX_ITER 65536
 #define DEBUG_PRINT 0
@@ -233,28 +233,28 @@ __device__ __forceinline__ void mscclRunInterpreter(
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
       uint8_t break_iter = 0;
-      print_break_iter(break_iter);
+      print_break_iter(bid, break_iter);
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
-      print_break_iter(break_iter);
+      print_break_iter(bid, break_iter);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
-      print_break_iter(break_iter);
+      print_break_iter(bid, break_iter);
       if (numDependencies > 0){
         if (tid < numDependencies) {
-          print_break_iter(break_iter);
+          print_break_iter(bid, break_iter);
           int16_t dependentPointer = t->dependencePointer;
-          print_break_iter(break_iter);
+          print_break_iter(bid, break_iter);
           int8_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
-          print_break_iter(break_iter);
+          print_break_iter(bid, break_iter);
           int16_t dependentStep = mscclShmem.mscclTB.dependentStep[dependentPointer+tid];
-          print_break_iter(break_iter);
+          print_break_iter(bid, break_iter);
           uint64_t goalFlag = COMPUTE_FLAG(workIndex, iter, dependentStep);
-          print_break_iter(break_iter);
+          print_break_iter(bid, break_iter);
           while (true){
             uint64_t curFlag = (mscclFlags + dependentBid)->flag;
-            print_break_iter(break_iter);
+            print_break_iter(bid, break_iter);
             if (curFlag >= goalFlag && GET_WORKINDEX_FROM_FLAG(curFlag) == workIndex) break;
-            print_break_iter(break_iter);
+            print_break_iter(bid, break_iter);
           }
         }
         step += numDependencies-1;
