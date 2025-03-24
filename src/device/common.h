@@ -393,13 +393,16 @@ __device__ __forceinline__ void ncclKernelMain(struct ncclDevKernelArgs const* a
 __global__ void ncclDevKernel_Generic(ncclDevKernelArgs4K NCCL_GRID_CONSTANT const args4K);
 __device__ void ncclDevFunc_Nop();
 
+#define STRINGIFY(x) #x
 #define DEFINE_ncclDevKernel(suffix, coll, redop, ty, algo, proto, specializedFnId) \
   __global__ void ncclDevKernel_##suffix(ncclDevKernelArgs4K NCCL_GRID_CONSTANT const args4K) { \
+    printf("go into DEFINE_ncclDevKernel_%s", STRINGIFY(suffix)); \
     ncclKernelMain<specializedFnId, RunWorkBatch<coll, ty, redop<ty>, algo, proto>>(&args4K.args); \
   }
 
 #define DEFINE_ncclDevFunc(suffix, coll, redop, ty, algo, proto) \
   __device__ void ncclDevFunc_##suffix() { \
+    printf("go into DEFINE_ncclDevFunc_%s", STRINGIFY(suffix)); \
     RunWorkBatch<coll, ty, redop<ty>, algo, proto>().run(); \
   }
 
