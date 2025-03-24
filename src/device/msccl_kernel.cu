@@ -19,6 +19,9 @@ __shared__ struct mscclShmemData mscclShmem;
 
 __shared__ struct mscclShmemData depShmem;
 
+#define print_break_iter(break_iter) \
+  if (tid == 0 && bid == 0) printf("where to break: break_iter %d\n", break_iter++);
+
 #define MSCCL_MAX_ITER 65536
 #define DEBUG_PRINT 0
 
@@ -230,28 +233,28 @@ __device__ __forceinline__ void mscclRunInterpreter(
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
       uint8_t break_iter = 0;
-      printf("where to break: %d\n", break_iter++);
+      print_break_iter(break_iter);
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
-      printf("where to break: %d\n", break_iter++);
+      print_break_iter(break_iter);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
-      printf("where to break: %d\n", break_iter++);
+      print_break_iter(break_iter);
       if (numDependencies > 0){
         if (tid < numDependencies) {
-          printf("where to break: %d\n", break_iter++);
+          print_break_iter(break_iter);
           int16_t dependentPointer = t->dependencePointer;
-          printf("where to break: %d\n", break_iter++);
+          print_break_iter(break_iter);
           int8_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
-          printf("where to break: %d\n", break_iter++);
+          print_break_iter(break_iter);
           int16_t dependentStep = mscclShmem.mscclTB.dependentStep[dependentPointer+tid];
-          printf("where to break: %d\n", break_iter++);
+          print_break_iter(break_iter);
           uint64_t goalFlag = COMPUTE_FLAG(workIndex, iter, dependentStep);
-          printf("where to break: %d\n", break_iter++);
+          print_break_iter(break_iter);
           while (true){
             uint64_t curFlag = (mscclFlags + dependentBid)->flag;
-            printf("where to break: %d\n", break_iter++);
+            print_break_iter(break_iter);
             if (curFlag >= goalFlag && GET_WORKINDEX_FROM_FLAG(curFlag) == workIndex) break;
-            printf("where to break: %d\n", break_iter++);
+            print_break_iter(break_iter);
           }
         }
         step += numDependencies-1;
