@@ -406,6 +406,53 @@ void* mscclKernelEntries[ncclNumDevRedOps * ncclNumTypes * NCCL_NUM_PROTOCOLS] =
   MSCCL_KERNEL_ENTRY()
 };
 
+#define PCCL_KERNEL_ENTRY_TYPE(type) \
+  (void *)PCCL_KERNEL_ENTRY_NAME(type)
+
+#if defined(__CUDA_BF16_TYPES_EXIST__) && defined(__CUDA_FP8_TYPES_EXIST__)
+#define PCCL_KERNEL_ENTRY() \
+  PCCL_KERNEL_ENTRY_TYPE(int8_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint8_t), \
+  PCCL_KERNEL_ENTRY_TYPE(int32_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint32_t), \
+  PCCL_KERNEL_ENTRY_TYPE(int64_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint64_t), \
+  PCCL_KERNEL_ENTRY_TYPE(half), \
+  PCCL_KERNEL_ENTRY_TYPE(float), \
+  PCCL_KERNEL_ENTRY_TYPE(double), \
+  PCCL_KERNEL_ENTRY_TYPE(__nv_bfloat16), \
+  PCCL_KERNEL_ENTRY_TYPE(__nv_fp8_e4m3), \
+  PCCL_KERNEL_ENTRY_TYPE(__nv_fp8_e5m2)
+#elif defined(__CUDA_BF16_TYPES_EXIST__)
+#define PCCL_KERNEL_ENTRY() \
+  PCCL_KERNEL_ENTRY_TYPE(int8_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint8_t), \
+  PCCL_KERNEL_ENTRY_TYPE(int32_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint32_t), \
+  PCCL_KERNEL_ENTRY_TYPE(int64_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint64_t), \
+  PCCL_KERNEL_ENTRY_TYPE(half), \
+  PCCL_KERNEL_ENTRY_TYPE(float), \
+  PCCL_KERNEL_ENTRY_TYPE(double), \
+  PCCL_KERNEL_ENTRY_TYPE(__nv_bfloat16)
+#else
+#define PCCL_KERNEL_ENTRY() \
+  PCCL_KERNEL_ENTRY_TYPE(int8_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint8_t), \
+  PCCL_KERNEL_ENTRY_TYPE(int32_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint32_t), \
+  PCCL_KERNEL_ENTRY_TYPE(int64_t), \
+  PCCL_KERNEL_ENTRY_TYPE(uint64_t), \
+  PCCL_KERNEL_ENTRY_TYPE(half), \
+  PCCL_KERNEL_ENTRY_TYPE(float), \
+  PCCL_KERNEL_ENTRY_TYPE(double)
+#endif
+
+void* pcclKernelEntries[ncclNumTypes] = {
+  PCCL_KERNEL_ENTRY()
+};
+
+
 // Returns maximum kernel stack size of all CUDA kernels
 ncclResult_t mscclInitKernelsForDevice(int cudaArch, size_t* maxStackSize) {
   constexpr int KernelCount = ncclNumDevRedOps * ncclNumTypes * NCCL_NUM_PROTOCOLS;
@@ -483,8 +530,10 @@ ncclResult_t mscclSetupKernel(const void* sendBuff, void* recvBuff, size_t count
   work.redOpArgIsPtr = opFull.scalarArgIsPtr;
   work.needsFence = status.needsFence;
   INFO(NCCL_INIT, "MSCCL: Setup Kernel finished, smem %ld needsFence %d", smem, status.needsFence);
+  INFO(NCCL_INIT, "PCCL: Launching kernel with grid %d, block %d, smem %ld\n", grid.x, block.x, smem);
   void *args[3] = {&comm->devComm, &devAlgo, &work};
-  void *func = mscclKernelEntries[(opFull.op * ncclNumTypes + dataType) * NCCL_NUM_PROTOCOLS + hostAlgo->protocol];
+  // void *func = mscclKernelEntries[(opFull.op * ncclNumTypes + dataType) * NCCL_NUM_PROTOCOLS + hostAlgo->protocol];
+  void *func = pcclKernelEntries[dataType];
 
   #if CUDART_VERSION >= 11080
   int driverVersion;
@@ -521,6 +570,7 @@ ncclResult_t mscclSetupKernel(const void* sendBuff, void* recvBuff, size_t count
       launchAttrs[attrs++].val.memSyncDomain = (cudaLaunchMemSyncDomain) ncclParamMscclMemSyncDomain();
     }
     #endif
+    INFO(NCCL_INIT, "PCCL: compCap %d, clusterSize %u, attrs %d \n", compCap, clusterSize, attrs);
     launchConfig.gridDim = grid;
     launchConfig.blockDim = block;
     launchConfig.dynamicSmemBytes = smem;
