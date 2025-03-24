@@ -17,6 +17,8 @@
 
 __shared__ struct mscclShmemData mscclShmem;
 
+__shared__ struct mscclShmemData depShmem;
+
 #define MSCCL_MAX_ITER 65536
 #define DEBUG_PRINT 0
 
@@ -87,13 +89,19 @@ __device__ __forceinline__ void mscclRunInterpreter(
   const int tid = threadIdx.x;
   const int bid = blockIdx.x;
   const int nthreads = blockDim.x;
-  printf("cuda debug helloworld: tid %d, bid %d, nthreads: %d\n", tid, bid, nthreads);
+  // printf("cuda debug helloworld: tid %d, bid %d, nthreads: %d\n", tid, bid, nthreads);
 
   // initialize mscclShmem.mscclTB
   threadBlockCopy(
     (uint64_t *)&mscclShmem.mscclTB, (uint64_t *)(algo->mscclTBs + bid),
     sizeof(struct mscclThreadBlock)/sizeof(uint64_t), tid, nthreads);
   __syncthreads(); // publish mscclShmem.mscclTB.channelId
+
+  // copy depShmem to shared memory, if there is a dependence and the dep tb in another channel
+  // threadBlockCopy(
+  //   (uint64_t *)&depShmem.mscclTB, (uint64_t *)(algo->mscclTBs + bid),
+  //   sizeof(struct mscclThreadBlock)/sizeof(uint64_t), tid, nthreads);
+  // __syncthreads(); // publish mscclShmem.mscclTB.channelId
 
   // initialize ncclShmem and mscclShmem.work
   int channelId = mscclShmem.mscclTB.channelId;
@@ -221,18 +229,29 @@ __device__ __forceinline__ void mscclRunInterpreter(
     T *srcPointer, *dstPointer;
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
+      uint8_t break_iter = 0;
+      print("where to break: %d\n", break_iter++);
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
+      print("where to break: %d\n", break_iter++);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
+      print("where to break: %d\n", break_iter++);
       if (numDependencies > 0){
         if (tid < numDependencies) {
+          print("where to break: %d\n", break_iter++);
           int16_t dependentPointer = t->dependencePointer;
+          print("where to break: %d\n", break_iter++);
           int8_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
+          print("where to break: %d\n", break_iter++);
           int16_t dependentStep = mscclShmem.mscclTB.dependentStep[dependentPointer+tid];
+          print("where to break: %d\n", break_iter++);
           uint64_t goalFlag = COMPUTE_FLAG(workIndex, iter, dependentStep);
+          print("where to break: %d\n", break_iter++);
           while (true){
             uint64_t curFlag = (mscclFlags + dependentBid)->flag;
+            print("where to break: %d\n", break_iter++);
             if (curFlag >= goalFlag && GET_WORKINDEX_FROM_FLAG(curFlag) == workIndex) break;
+            print("where to break: %d\n", break_iter++);
           }
         }
         step += numDependencies-1;
