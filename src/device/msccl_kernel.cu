@@ -20,7 +20,7 @@ __shared__ struct mscclShmemData mscclShmem;
 __shared__ struct mscclShmemData depShmem;
 
 #define print_break_iter(bid, break_iter) \
-  if (tid == 0) printf("where to break: bid %d, break_iter %d\n", bid, break_iter++);
+  if (tid == 0 && false) printf("where to break: bid %d, break_iter %d\n", bid, break_iter++);
 
 #define MSCCL_MAX_ITER 65536
 #define DEBUG_PRINT 0
