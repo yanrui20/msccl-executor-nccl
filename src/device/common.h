@@ -311,7 +311,7 @@ struct RunWorkBatch {
 
 template<int SpecializedFnId, typename SpecializedRunWorkBatch>
 __device__ __forceinline__ void ncclKernelMain(struct ncclDevKernelArgs const* args) {
-  printf("go into ncclKernelMain\n");
+  // printf("go into ncclKernelMain\n");
   int tid = threadIdx.x;
   int tn = blockDim.x;
 
