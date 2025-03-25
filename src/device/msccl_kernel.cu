@@ -232,7 +232,6 @@ __device__ __forceinline__ void mscclRunInterpreter(
     T *srcPointer, *dstPointer;
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
-      uint8_t break_iter = 0;
       print_break_iter(bid, i);
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
       print_break_iter(bid, i);
