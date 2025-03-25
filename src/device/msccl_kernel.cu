@@ -234,19 +234,14 @@ __device__ __forceinline__ void mscclRunInterpreter(
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
       print_break_iter(bid, i);
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
-      print_break_iter(bid, i);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
       print_break_iter(bid, i);
       if (numDependencies > 0){
         if (tid < numDependencies) {
-          print_break_iter(bid, i);
           int16_t dependentPointer = t->dependencePointer;
-          print_break_iter(bid, i);
           int8_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
-          print_break_iter(bid, i);
           int16_t dependentStep = mscclShmem.mscclTB.dependentStep[dependentPointer+tid];
-          print_break_iter(bid, i);
           uint64_t goalFlag = COMPUTE_FLAG(workIndex, iter, dependentStep);
           print_break_iter(bid, i);
           while (true){
