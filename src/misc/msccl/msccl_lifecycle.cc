@@ -177,6 +177,7 @@ static ncclResult_t mscclInternalSchedulerInit(ncclComm_t comm, int* numChannels
   INFO(NCCL_INIT, "status.algoMetas.size(): %d", status.algoMetas.size());
   status.rankToAlgoHandles.resize(status.algoMetas.size());
   INFO(NCCL_INIT, "status.rankToAlgoHandles: %p", &status.rankToAlgoHandles);
+  INFO(NCCL_INIT, "status.rankToAlgoHandles[0]: %p", &status.rankToAlgoHandles[0]);
   mscclAlgoMetaLoaded = true;
   return ncclSuccess;
 }
@@ -259,8 +260,6 @@ ncclResult_t mscclInit(ncclComm_t comm) {
           INFO(NCCL_INIT, "i %d", i);
           INFO(NCCL_INIT, "status.rankToAlgoHandles %p", &status.rankToAlgoHandles);
           INFO(NCCL_INIT, "status.rankToAlgoHandles[i] %p", &status.rankToAlgoHandles[i]);
-          INFO(NCCL_INIT, "status.rankToAlgoHandles[i].find(comm->rank) %p", status.rankToAlgoHandles[i].find(comm->rank));
-          INFO(NCCL_INIT, "status.rankToAlgoHandles[i].end() %p", status.rankToAlgoHandles[i].end());
           if (status.rankToAlgoHandles[i].find(comm->rank) == status.rankToAlgoHandles[i].end()) {
             INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
             NCCLCHECK(mscclLoadAlgo(m.filePath.c_str(), &(status.rankToAlgoHandles[i][comm->rank]), comm->rank));
