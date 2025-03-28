@@ -251,6 +251,7 @@ ncclResult_t mscclInit(ncclComm_t comm) {
           // Load algorithms
           INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
           INFO(NCCL_INIT, "status %p", &status);
+          INFO(NCCL_INIT, "i %d", i);
           INFO(NCCL_INIT, "status.rankToAlgoHandles %p", &status.rankToAlgoHandles);
           INFO(NCCL_INIT, "status.rankToAlgoHandles[i] %p", &status.rankToAlgoHandles[i]);
           INFO(NCCL_INIT, "status.rankToAlgoHandles[i][comm->rank] %p", &status.rankToAlgoHandles[i][comm->rank]);
