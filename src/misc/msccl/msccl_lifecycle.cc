@@ -160,11 +160,11 @@ static ncclResult_t mscclInternalSchedulerInit(ncclComm_t comm, int* numChannels
     fullPath += entry->d_name;
     sortedFullPaths.insert(fullPath);
   }
-  INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
   for (auto& fullPath : sortedFullPaths) {
     status.algoMetas.emplace_back();
     INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
     NCCLCHECK(mscclGetAlgoMetaFromXmlFile(fullPath.c_str(), &(status.algoMetas.back())));
+    INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
     if (status.algoMetas.back().nRanks == comm->nRanks) {
       *numChannelsRequired = std::max(*numChannelsRequired, status.algoMetas.back().nChannels);
     }
@@ -173,11 +173,7 @@ static ncclResult_t mscclInternalSchedulerInit(ncclComm_t comm, int* numChannels
     WARN("MSCCL Internal Scheduler: closedir failed, error %d", errno);
     return ncclInvalidUsage;
   }
-  INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
-  INFO(NCCL_INIT, "status.algoMetas.size(): %d", status.algoMetas.size());
   status.rankToAlgoHandles.resize(status.algoMetas.size());
-  INFO(NCCL_INIT, "status.rankToAlgoHandles: %p", &status.rankToAlgoHandles);
-  INFO(NCCL_INIT, "status.rankToAlgoHandles[0]: %p", &status.rankToAlgoHandles[0]);
   mscclAlgoMetaLoaded = true;
   return ncclSuccess;
 }
@@ -255,13 +251,7 @@ ncclResult_t mscclInit(ncclComm_t comm) {
         auto &m = status.algoMetas[i];
         if (m.nRanks == comm->nRanks) {
           // Load algorithms
-          INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
-          INFO(NCCL_INIT, "status %p", &status);
-          INFO(NCCL_INIT, "i %d", i);
-          INFO(NCCL_INIT, "status.rankToAlgoHandles %p", &status.rankToAlgoHandles);
-          INFO(NCCL_INIT, "status.rankToAlgoHandles[i] %p", &status.rankToAlgoHandles[i]);
           if (status.rankToAlgoHandles[i].find(comm->rank) == status.rankToAlgoHandles[i].end()) {
-            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
             NCCLCHECK(mscclLoadAlgo(m.filePath.c_str(), &(status.rankToAlgoHandles[i][comm->rank]), comm->rank));
           }
           // Connect algorithms
