@@ -250,10 +250,13 @@ ncclResult_t mscclInit(ncclComm_t comm) {
         if (m.nRanks == comm->nRanks) {
           // Load algorithms
           INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
+          INFO(NCCL_INIT, "status %p", &status);
+          INFO(NCCL_INIT, "status.rankToAlgoHandles %p", &status.rankToAlgoHandles);
+          INFO(NCCL_INIT, "status.rankToAlgoHandles[i] %p", &status.rankToAlgoHandles[i]);
+          INFO(NCCL_INIT, "status.rankToAlgoHandles[i][comm->rank] %p", &status.rankToAlgoHandles[i][comm->rank]);
           if (status.rankToAlgoHandles[i].find(comm->rank) == status.rankToAlgoHandles[i].end()) {
             INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
             NCCLCHECK(mscclLoadAlgo(m.filePath.c_str(), &(status.rankToAlgoHandles[i][comm->rank]), comm->rank));
-            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
           }
           // Connect algorithms
           mscclAlgoHandle_t mscclAlgoHandle = status.rankToAlgoHandles[i][comm->rank];

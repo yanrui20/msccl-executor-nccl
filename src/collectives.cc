@@ -313,33 +313,23 @@ ncclResult_t ncclAllToAll(const void* sendbuff, void* recvbuff, size_t count, nc
 
 NCCL_API(ncclResult_t, mscclLoadAlgo, const char *mscclAlgoFilePath, mscclAlgoHandle_t *mscclAlgoHandle, int rank);
 ncclResult_t mscclLoadAlgo(const char *mscclAlgoFilePath, mscclAlgoHandle_t *mscclAlgoHandle, int rank) {
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   mscclStatus& status = mscclGetStatus();
   if (status.freeAlgoHandles.size() == 0) {
     WARN("MSCCL: MSCCL_MAX_NUM_ALGOS (%d) limit reached", MSCCL_MAX_NUM_ALGOS);
     return ncclInvalidUsage;
   }
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   *mscclAlgoHandle = *status.freeAlgoHandles.rbegin();
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   status.freeAlgoHandles.pop_back();
 
   struct mscclAlgo* hostAlgo;
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   NCCLCHECK(ncclCalloc(&hostAlgo, 1));
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   NCCLCHECK(mscclGetAlgoFromXmlFile(mscclAlgoFilePath, hostAlgo, rank));
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   status.hostAlgos[*mscclAlgoHandle] = hostAlgo;
 
   struct mscclAlgo* devAlgo;
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   NCCLCHECK(ncclCudaCalloc(&devAlgo, 1));
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   CUDACHECK(cudaMemcpy(devAlgo, hostAlgo, sizeof(struct mscclAlgo), cudaMemcpyHostToDevice));
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
   status.devAlgos[*mscclAlgoHandle] = devAlgo;
-  INFO(NCCL_INIT, "mscclLoadAlgo: %d", __LINE__);
 
   return ncclSuccess;
 }
