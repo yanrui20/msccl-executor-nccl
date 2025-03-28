@@ -216,7 +216,6 @@ ncclResult_t mscclSchedulerInit(ncclComm_t comm, int* numChannelsRequired) {
 }
 
 ncclResult_t mscclInit(ncclComm_t comm) {
-  INFO(NCCL_INIT, "mscclInit start: %d", __LINE__);
   if (comm->intraRanks > 1) {
     mscclInitialized.store(false, std::memory_order_release);
     INFO(NCCL_INIT, "MSCCL doesn't support multiple GPUs in one process and is not available");
@@ -228,7 +227,6 @@ ncclResult_t mscclInit(ncclComm_t comm) {
   threadLocalStatus.groupDepth = 0;
   threadLocalStatus.captureId = ULLONG_MAX;
   threadLocalStatus.captureStatus = mscclNoCapture;
-  INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
   {
     std::lock_guard<std::mutex> lock(mscclLifecycleMutex);
 
@@ -243,7 +241,6 @@ ncclResult_t mscclInit(ncclComm_t comm) {
       status.needsProxy = false;
       status.needsFence = false;
     }
-    INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
     // Pre-process all algorithms for internal scheduler and for different comms.
     // This is a temp fix to bypass the issue that stream cannot be synchronized during HIP graph capturing,
     // should use dynamic loading approach after the issue is fixed.
@@ -254,22 +251,19 @@ ncclResult_t mscclInit(ncclComm_t comm) {
           // Load algorithms
           INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
           if (status.rankToAlgoHandles[i].find(comm->rank) == status.rankToAlgoHandles[i].end()) {
+            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
             NCCLCHECK(mscclLoadAlgo(m.filePath.c_str(), &(status.rankToAlgoHandles[i][comm->rank]), comm->rank));
+            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
           }
           // Connect algorithms
           mscclAlgoHandle_t mscclAlgoHandle = status.rankToAlgoHandles[i][comm->rank];
-          INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
           if (status.connectedAlgos[comm].find(mscclAlgoHandle) == status.connectedAlgos[comm].end()) {
-            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
             NCCLCHECK(mscclSetupConnections(status.hostAlgos[mscclAlgoHandle], comm));
-            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
             status.connectedAlgos[comm].insert(mscclAlgoHandle);
-            INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
           }
         }
       }
     }
-    INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
     if (mscclInitialized.load(std::memory_order_acquire)) {
       return ncclSuccess;
     }
@@ -282,7 +276,6 @@ ncclResult_t mscclInit(ncclComm_t comm) {
 
     mscclInitialized.store(true, std::memory_order_release);
   }
-  INFO(NCCL_INIT, "mscclInit: %d", __LINE__);
 
   size_t maxLocalSizeBytes = 0, mscclMaxLocalSizeBytes = 0;
   cudaDeviceGetLimit(&maxLocalSizeBytes, cudaLimitStackSize);
