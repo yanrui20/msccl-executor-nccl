@@ -160,8 +160,10 @@ static ncclResult_t mscclInternalSchedulerInit(ncclComm_t comm, int* numChannels
     fullPath += entry->d_name;
     sortedFullPaths.insert(fullPath);
   }
+  INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
   for (auto& fullPath : sortedFullPaths) {
     status.algoMetas.emplace_back();
+    INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
     NCCLCHECK(mscclGetAlgoMetaFromXmlFile(fullPath.c_str(), &(status.algoMetas.back())));
     if (status.algoMetas.back().nRanks == comm->nRanks) {
       *numChannelsRequired = std::max(*numChannelsRequired, status.algoMetas.back().nChannels);
@@ -171,7 +173,10 @@ static ncclResult_t mscclInternalSchedulerInit(ncclComm_t comm, int* numChannels
     WARN("MSCCL Internal Scheduler: closedir failed, error %d", errno);
     return ncclInvalidUsage;
   }
+  INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
+  INFO(NCCL_INIT, "status.algoMetas.size(): %d", status.algoMetas.size());
   status.rankToAlgoHandles.resize(status.algoMetas.size());
+  INFO(NCCL_INIT, "status.rankToAlgoHandles: %p", &status.rankToAlgoHandles);
   mscclAlgoMetaLoaded = true;
   return ncclSuccess;
 }
