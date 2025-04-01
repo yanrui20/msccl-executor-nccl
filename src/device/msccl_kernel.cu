@@ -90,19 +90,12 @@ __device__ __forceinline__ void mscclRunInterpreter(
   const int tid = threadIdx.x;
   const int bid = blockIdx.x;
   const int nthreads = blockDim.x;
-  // printf("cuda debug helloworld: tid %d, bid %d, nthreads: %d\n", tid, bid, nthreads);
 
   // initialize mscclShmem.mscclTB
   threadBlockCopy(
     (uint64_t *)&mscclShmem.mscclTB, (uint64_t *)(algo->mscclTBs + bid),
     sizeof(struct mscclThreadBlock)/sizeof(uint64_t), tid, nthreads);
   __syncthreads(); // publish mscclShmem.mscclTB.channelId
-
-  // copy depShmem to shared memory, if there is a dependence and the dep tb in another channel
-  // threadBlockCopy(
-  //   (uint64_t *)&depShmem.mscclTB, (uint64_t *)(algo->mscclTBs + bid),
-  //   sizeof(struct mscclThreadBlock)/sizeof(uint64_t), tid, nthreads);
-  // __syncthreads(); // publish mscclShmem.mscclTB.channelId
 
   // initialize ncclShmem and mscclShmem.work
   int channelId = mscclShmem.mscclTB.channelId;
