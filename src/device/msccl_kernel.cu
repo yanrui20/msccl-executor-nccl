@@ -201,6 +201,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
 #endif
 
   const ssize_t sizePerMscclChunk = mscclShmem.work.count / mscclShmem.work.nChunksPerLoop;
+  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, work.count %ld, work.nChunksPerLoop %ld\n", __LINE__, mscclShmem.work.count, mscclShmem.work.nChunksPerLoop);
   if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, sizePerMscclChunk %ld\n", __LINE__, sizePerMscclChunk);
   uint32_t maxAllowedCount = mscclShmem.work.maxAllowedCount;
   if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, maxAllowedCount %ld\n", __LINE__, maxAllowedCount);
