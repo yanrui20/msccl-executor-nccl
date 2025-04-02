@@ -180,7 +180,8 @@ __device__ __forceinline__ void mscclRunInterpreter(
   int sendPeer = mscclShmem.mscclTB.sendPeer;
 
   const ssize_t chunkSize = int(Proto::calcBytePerStep()/sizeof(T) * (Proto::Id == NCCL_PROTO_SIMPLE ? MSCCL_CHUNKSTEPS : 1));
-  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, chunkSize %ld\n", __LINE__, chunkSize);
+  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, calcBytePerStep %d, sizeof(T) %d, Proto::Id %d, chunkSize %ld\n",
+     __LINE__, Proto::calcBytePerStep(), sizeof(T), Proto::Id, chunkSize);
   int minChunkSize;
   if (Proto::Id == NCCL_PROTO_LL)
     minChunkSize = nthreads*(Proto::calcBytePerGrain()/sizeof(T));
