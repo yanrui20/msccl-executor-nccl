@@ -180,7 +180,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
   int sendPeer = mscclShmem.mscclTB.sendPeer;
 
   const ssize_t chunkSize = int(Proto::calcBytePerStep()/sizeof(T) * (Proto::Id == NCCL_PROTO_SIMPLE ? MSCCL_CHUNKSTEPS : 1));
-  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, chunkSize %ld\n", __LINE__, chunkSize);
+  // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, chunkSize %ld\n", __LINE__, chunkSize);
   int minChunkSize;
   if (Proto::Id == NCCL_PROTO_LL)
     minChunkSize = nthreads*(Proto::calcBytePerGrain()/sizeof(T));
@@ -200,17 +200,17 @@ __device__ __forceinline__ void mscclRunInterpreter(
 #endif
 
   const ssize_t sizePerMscclChunk = mscclShmem.work.count / mscclShmem.work.nChunksPerLoop;
-  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, work.count %ld, work.nChunksPerLoop %ld\n", __LINE__, mscclShmem.work.count, mscclShmem.work.nChunksPerLoop);
-  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, sizePerMscclChunk %ld\n", __LINE__, sizePerMscclChunk);
+  // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, work.count %ld, work.nChunksPerLoop %ld\n", __LINE__, mscclShmem.work.count, mscclShmem.work.nChunksPerLoop);
+  // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, sizePerMscclChunk %d\n", __LINE__, sizePerMscclChunk);
   uint32_t maxAllowedCount = mscclShmem.work.maxAllowedCount;
-  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, maxAllowedCount %ld\n", __LINE__, maxAllowedCount);
+  // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, maxAllowedCount %u\n", __LINE__, maxAllowedCount);
 
   // msccl flags all start out with 0. this is used as a part of the flag to make sure different work items deal with different synchronization flags
   // this still needs more work. when we make a way around the queue, the flag might have been set to undesired values. will be fixed in subsequent versions.
   const int64_t workIndex = mscclShmem.work.workIndex;
   volatile struct mscclFlag* mscclFlags = mscclShmem.work.syncFlags;
   for (ssize_t gridOffset = 0, iter = 0; gridOffset < sizePerMscclChunk; gridOffset += chunkSize, iter++) {
-    if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, gridOffset %ld\n", __LINE__, gridOffset);
+    // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, gridOffset %ld\n", __LINE__, gridOffset);
     ssize_t realChunkSize;
     if (Proto::Id == NCCL_PROTO_SIMPLE) {
       realChunkSize = min(chunkSize, sizePerMscclChunk-gridOffset);
@@ -227,7 +227,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
-      if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, t->srcOffset %d, t->dstOffset %d, \n", __LINE__, t->srcOffset, t->dstOffset);
+      // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, t->srcOffset %d, t->dstOffset %d, \n", __LINE__, t->srcOffset, t->dstOffset);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
       if (numDependencies > 0){
@@ -252,9 +252,9 @@ __device__ __forceinline__ void mscclRunInterpreter(
       for (int c = 0; c < count; c += maxAllowedCount) {
         srcOffset = gridOffset + (ssize_t) (t->srcOffset+c) * sizePerMscclChunk;
         dstOffset = gridOffset + (ssize_t) (t->dstOffset+c) * sizePerMscclChunk;
-        if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, srcOffset %d, dstOffset %d\n", __LINE__, srcOffset, dstOffset);
+        // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, srcOffset %ld, dstOffset %ld\n", __LINE__, srcOffset, dstOffset);
         int thisCount = min(maxAllowedCount, count - c);
-        if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, count %d, thisCount %d\n", __LINE__, count, thisCount);
+        // if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, count %d, thisCount %d\n", __LINE__, count, thisCount);
         int thisNelem = nelem * thisCount;
         if (t->type == MSCCL_SEND)
           prims.sendWithBarrier(srcOffset, thisNelem); // LL.send is the only situation where there is no barrier at the end.
