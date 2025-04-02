@@ -180,8 +180,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
   int sendPeer = mscclShmem.mscclTB.sendPeer;
 
   const ssize_t chunkSize = int(Proto::calcBytePerStep()/sizeof(T) * (Proto::Id == NCCL_PROTO_SIMPLE ? MSCCL_CHUNKSTEPS : 1));
-  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, calcBytePerStep %d, sizeof(T) %d, Proto::Id %d, chunkSize %ld\n",
-     __LINE__, Proto::calcBytePerStep(), sizeof(T), Proto::Id, chunkSize);
+  if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, chunkSize %ld\n", __LINE__, chunkSize);
   int minChunkSize;
   if (Proto::Id == NCCL_PROTO_LL)
     minChunkSize = nthreads*(Proto::calcBytePerGrain()/sizeof(T));
@@ -228,7 +227,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
     int step = 0;
     for (int i = 0; i < mscclShmem.mscclTB.nSteps; i++){
       struct mscclTransmission* t = &mscclShmem.mscclTB.transmissions[i];
-      if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, t->srcOffset %ld\n", __LINE__, t->srcOffset);
+      if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, t->srcOffset %d, t->dstOffset %d, \n", __LINE__, t->srcOffset, t->dstOffset);
       // first wait if there is a dependence
       int16_t numDependencies = t->numDependencies;
       if (numDependencies > 0){
@@ -253,7 +252,9 @@ __device__ __forceinline__ void mscclRunInterpreter(
       for (int c = 0; c < count; c += maxAllowedCount) {
         srcOffset = gridOffset + (ssize_t) (t->srcOffset+c) * sizePerMscclChunk;
         dstOffset = gridOffset + (ssize_t) (t->dstOffset+c) * sizePerMscclChunk;
+        if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, srcOffset %d, dstOffset %d\n", __LINE__, srcOffset, dstOffset);
         int thisCount = min(maxAllowedCount, count - c);
+        if (tid == 0 && bid == 0) printf("mscclRunInterpreter: line %d, count %d, thisCount %d\n", __LINE__, count, thisCount);
         int thisNelem = nelem * thisCount;
         if (t->type == MSCCL_SEND)
           prims.sendWithBarrier(srcOffset, thisNelem); // LL.send is the only situation where there is no barrier at the end.
