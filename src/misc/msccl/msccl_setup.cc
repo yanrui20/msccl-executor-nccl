@@ -58,8 +58,6 @@ ncclResult_t mscclSetupCount(struct mscclAlgo* hostAlgo, ncclComm_t comm, size_t
     return ncclInternalError;
   }
   if (status.maxAllowedCount >= MSCCL_MAX_COUNT) {
-    INFO(NCCL_ALL, "MSCCL_DEBUG: maxAllowedCount(%u) >= 72\n", status.maxAllowedCount);
-    INFO(NCCL_ALL, "MSCCL_DEBUG: count %lu, type size %d, sizeMultiplier %d \n", count, ncclTypeSize(status.dataType), hostAlgo->sizeMultiplier);
     status.maxAllowedCount = MSCCL_MAX_COUNT - 1;
   }
   return ncclSuccess;
