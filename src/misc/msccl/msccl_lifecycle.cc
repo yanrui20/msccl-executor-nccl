@@ -162,9 +162,7 @@ static ncclResult_t mscclInternalSchedulerInit(ncclComm_t comm, int* numChannels
   }
   for (auto& fullPath : sortedFullPaths) {
     status.algoMetas.emplace_back();
-    INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
     NCCLCHECK(mscclGetAlgoMetaFromXmlFile(fullPath.c_str(), &(status.algoMetas.back())));
-    INFO(NCCL_INIT, "mscclInternalSchedulerInit: %d", __LINE__);
     if (status.algoMetas.back().nRanks == comm->nRanks) {
       *numChannelsRequired = std::max(*numChannelsRequired, status.algoMetas.back().nChannels);
     }

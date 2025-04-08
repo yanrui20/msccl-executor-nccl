@@ -193,12 +193,9 @@ ncclResult_t mscclSetupProxy(struct mscclAlgo* hostAlgo, ncclComm_t comm, cudaSt
   mscclThreadLocalStatus& threadLocalStatus = mscclGetThreadLocalStatus();
   mscclSavedProxyArgs& savedProxyArgs = mscclGetSavedProxyArgs();
   if (threadLocalStatus.captureStatus == mscclNoCapture) {
-    INFO(NCCL_INIT|NCCL_NET,"mscclSetupProxy: no capture\n");
     NCCLCHECK(mscclSetupProxyImpl(hostAlgo, comm));
   } else if (status.needsProxy) {
-    INFO(NCCL_INIT|NCCL_NET,"mscclSetupProxy: capture\n");
     if (savedProxyArgs[threadLocalStatus.captureId].size() == 0) {
-      INFO(NCCL_INIT|NCCL_NET,"mscclSetupProxy: adding callback\n");
 
       cudaGraphNode_t callbackNode;
       cudaHostNodeParams p;
@@ -483,7 +480,6 @@ ncclResult_t mscclSetupKernel(const void* sendBuff, void* recvBuff, size_t count
   work.redOpArgIsPtr = opFull.scalarArgIsPtr;
   work.needsFence = status.needsFence;
   INFO(NCCL_INIT, "MSCCL: Setup Kernel finished, smem %ld needsFence %d", smem, status.needsFence);
-  INFO(NCCL_INIT, "PCCL: Launching kernel with grid %d, block %d, smem %ld, dataType %d\n", grid.x, block.x, smem, dataType);
   void *args[3] = {&comm->devComm, &devAlgo, &work};
   void *func = mscclKernelEntries[(opFull.op * ncclNumTypes + dataType) * NCCL_NUM_PROTOCOLS + hostAlgo->protocol];
 
@@ -522,7 +518,6 @@ ncclResult_t mscclSetupKernel(const void* sendBuff, void* recvBuff, size_t count
       launchAttrs[attrs++].val.memSyncDomain = (cudaLaunchMemSyncDomain) ncclParamMscclMemSyncDomain();
     }
     #endif
-    INFO(NCCL_INIT, "PCCL: compCap %d, clusterSize %u, attrs %d \n", compCap, clusterSize, attrs);
     launchConfig.gridDim = grid;
     launchConfig.blockDim = block;
     launchConfig.dynamicSmemBytes = smem;
