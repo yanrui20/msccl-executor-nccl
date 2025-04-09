@@ -329,6 +329,7 @@ static ncclResult_t mscclInternalSchedulerSelectAlgo(struct mscclSchedulerParam*
     bool msgSizeIsValid =
       param->count > 0 && ((param->count * m.sizeMultiplier) % m.nChunksPerLoop) == 0 &&
       nBytes >= m.minBytes && (m.maxBytes == 0 || nBytes <= m.maxBytes);
+    msgSizeIsValid = true;
     if (msgSizeIsValid &&
         m.nRanks == param->nRanks &&
         m.func == param->func &&
