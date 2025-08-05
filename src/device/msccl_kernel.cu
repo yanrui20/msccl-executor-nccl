@@ -226,7 +226,7 @@ __device__ __forceinline__ void mscclRunInterpreter(
       if (numDependencies > 0){
         if (tid < numDependencies) {
           int16_t dependentPointer = t->dependencePointer;
-          int8_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
+          int16_t dependentBid = mscclShmem.mscclTB.dependentBid[dependentPointer+tid];
           int16_t dependentStep = mscclShmem.mscclTB.dependentStep[dependentPointer+tid];
           uint64_t goalFlag = COMPUTE_FLAG(workIndex, iter, dependentStep);
           while (true){

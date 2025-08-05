@@ -55,7 +55,7 @@ static_assert((1ULL << (8*sizeof(mscclTransmission::count))) - 1 > MSCCL_MAX_COU
 struct alignas(16) mscclThreadBlock {
   // step is used to index into these arrays
   alignas(16) struct mscclTransmission transmissions[MSCCL_MAX_NUM_STEPS]; // 4KB
-  int8_t dependentBid[MSCCL_MAX_NUM_STEPS]; // -1 if not dependent on any thread block, 256 bytes
+  int16_t dependentBid[MSCCL_MAX_NUM_STEPS]; // -1 if not dependent on any thread block, 256 bytes
   int16_t dependentStep[MSCCL_MAX_NUM_STEPS]; // 512 bytes
   int16_t reductionSrcOffsets[MSCCL_MAX_NUM_STEPS]; // 512 bytes
   int16_t sendPeer;
