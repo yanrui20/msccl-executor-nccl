@@ -94,7 +94,8 @@ ncclResult_t ncclAllGather(const void* sendbuff, void* recvbuff, size_t sendcoun
       sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
       sendcount, datatype, 0, 0, ncclSum, mscclFuncAllGather, comm, stream);
   }
-
+  WARN("The XML algorithm is not applicable to the current collective communication operator. MSCCL has fallen back to the NCCL's built-in implementation which is prohibited by the organizer. Please check your algorithm again.");
+  return ncclInvalidUsage;
   struct ncclInfo info = { ncclFuncAllGather, "AllGather",
     sendbuff, recvbuff, sendcount, datatype, ncclSum, 0, comm, stream, /* Args */
     ALLGATHER_CHUNKSTEPS, ALLGATHER_SLICESTEPS };
@@ -124,7 +125,8 @@ ncclResult_t ncclAllReduce(const void* sendbuff, void* recvbuff, size_t count,
       sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
       count, datatype, 0, 0, op, mscclFuncAllReduce, comm, stream);
   }
-
+  WARN("The XML algorithm is not applicable to the current collective communication operator. MSCCL has fallen back to the NCCL's built-in implementation which is prohibited by the organizer. Please check your algorithm again.");
+  return ncclInvalidUsage;
   struct ncclInfo info = { ncclFuncAllReduce, "AllReduce",
     sendbuff, recvbuff, count, datatype, op, 0, comm, stream, /* Args */
     ALLREDUCE_CHUNKSTEPS, ALLREDUCE_SLICESTEPS };
@@ -136,6 +138,8 @@ NCCL_API(ncclResult_t, ncclBroadcast, const void* sendbuff, void* recvbuff, size
     ncclComm_t comm, cudaStream_t stream);
 ncclResult_t ncclBroadcast(const void* sendbuff, void* recvbuff, size_t count, ncclDataType_t datatype, int root,
     ncclComm_t comm, cudaStream_t stream) {
+  WARN("Calling ncclBroadcast is prohibited.");
+  return ncclInvalidUsage;
   struct NvtxParamsBroadcast {
     size_t bytes;
     int root;
@@ -171,6 +175,8 @@ NCCL_API(ncclResult_t, ncclReduce, const void* sendbuff, void* recvbuff, size_t 
     ncclDataType_t datatype, ncclRedOp_t op, int root, ncclComm_t comm, cudaStream_t stream);
 ncclResult_t ncclReduce(const void* sendbuff, void* recvbuff, size_t count,
     ncclDataType_t datatype, ncclRedOp_t op, int root, ncclComm_t comm, cudaStream_t stream) {
+  WARN("Calling ncclReduce is prohibited.");
+  return ncclInvalidUsage;
   struct NvtxParamsReduce {
     size_t bytes;
     int root;
@@ -202,6 +208,8 @@ NCCL_API(ncclResult_t, ncclReduceScatter, const void* sendbuff, void* recvbuff, 
     ncclDataType_t datatype, ncclRedOp_t op, ncclComm* comm, cudaStream_t stream);
 ncclResult_t ncclReduceScatter(const void* sendbuff, void* recvbuff, size_t recvcount,
     ncclDataType_t datatype, ncclRedOp_t op, ncclComm* comm, cudaStream_t stream) {
+  WARN("Calling ncclReduceScatter is prohibited.");
+  return ncclInvalidUsage;
   struct NvtxParamsReduceScatter {
     size_t bytes;
     ncclRedOp_t op;
@@ -240,6 +248,8 @@ NCCL_API(ncclResult_t, ncclSend, const void* sendbuff, size_t count, ncclDataTyp
     ncclComm_t comm, cudaStream_t stream);
 ncclResult_t ncclSend(const void* sendbuff, size_t count, ncclDataType_t datatype, int peer,
     ncclComm_t comm, cudaStream_t stream) {
+  WARN("Calling ncclSend is prohibited.");
+  return ncclInvalidUsage;
   NvtxParamsSendRecv payload{count * ncclTypeSize(datatype), peer};
   NVTX3_FUNC_WITH_PARAMS(Send, SendRecvSchema, payload)
 
@@ -264,6 +274,8 @@ NCCL_API(ncclResult_t, ncclRecv, void* recvbuff, size_t count, ncclDataType_t da
     ncclComm_t comm, cudaStream_t stream);
 ncclResult_t ncclRecv(void* recvbuff, size_t count, ncclDataType_t datatype, int peer,
     ncclComm_t comm, cudaStream_t stream) {
+  WARN("Calling ncclRecv is prohibited.");
+  return ncclInvalidUsage;
   NvtxParamsSendRecv payload{count * ncclTypeSize(datatype), peer};
   NVTX3_FUNC_WITH_PARAMS(Recv, SendRecvSchema, payload)
 
@@ -288,6 +300,8 @@ NCCL_API(ncclResult_t, ncclAllToAll, const void* sendbuff, void* recvbuff, size_
   ncclComm_t comm, cudaStream_t stream);
 ncclResult_t ncclAllToAll(const void* sendbuff, void* recvbuff, size_t count, ncclDataType_t datatype,
   ncclComm_t comm, cudaStream_t stream) {
+  WARN("Calling ncclAllToAll is prohibited.");
+  return ncclInvalidUsage;
   ncclResult_t ret;
 
   if (mscclAvailable() && !mscclIsCaller()) {
