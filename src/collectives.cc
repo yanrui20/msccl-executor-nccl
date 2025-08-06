@@ -120,6 +120,11 @@ ncclResult_t ncclAllReduce(const void* sendbuff, void* recvbuff, size_t count,
   NvtxParamsAllReduce payload{count * ncclTypeSize(datatype), op};
   NVTX3_FUNC_WITH_PARAMS(AllReduce, AllReduceSchema, payload)
 
+  if (count < 256) {
+    // 用于pynccl初始化的warmup调用，也避免在这里调用选手的xml算法
+    goto nccl;
+  }
+
   if (mscclAvailable() && !mscclIsCaller()) {
     return mscclEnqueueCheck(
       sendbuff, nullptr, nullptr, recvbuff, nullptr, nullptr,
@@ -127,6 +132,7 @@ ncclResult_t ncclAllReduce(const void* sendbuff, void* recvbuff, size_t count,
   }
   WARN("The XML algorithm is not applicable to the current collective communication operator. MSCCL has fallen back to the NCCL's built-in implementation which is prohibited by the organizer. Please check your algorithm again.");
   return ncclInvalidUsage;
+nccl:
   struct ncclInfo info = { ncclFuncAllReduce, "AllReduce",
     sendbuff, recvbuff, count, datatype, op, 0, comm, stream, /* Args */
     ALLREDUCE_CHUNKSTEPS, ALLREDUCE_SLICESTEPS };
